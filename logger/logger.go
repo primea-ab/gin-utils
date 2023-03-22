@@ -1,4 +1,4 @@
-package gin_utils
+package logger
 
 import (
 	"context"
