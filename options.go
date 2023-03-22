@@ -1,4 +1,4 @@
-package database
+package gin_utils
 
 import (
 	"crypto/tls"
@@ -21,7 +21,7 @@ func WithLogLevel(loglevel pgx.LogLevel) Option {
 	}
 }
 
-func WithLogger(logger pgx.Logger) Option {
+func WithDBLogger(logger pgx.Logger) Option {
 	return func(db *Db) {
 		db.conf.ConnConfig.Logger = logger
 	}

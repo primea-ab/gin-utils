@@ -1,4 +1,4 @@
-package database
+package gin_utils
 
 import (
 	"context"
@@ -17,8 +17,8 @@ type Db struct {
 	conf *pgxpool.Config
 }
 
-func New(ctx context.Context, host, port, user, password, db string, opts ...Option) *Db {
-	connectionString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s", host, port, user, password, db)
+func New(ctx context.Context, host, port, user, password, dbName string, opts ...Option) *Db {
+	connectionString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s", host, port, user, password, dbName)
 	conf, err := pgxpool.ParseConfig(connectionString)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("unable to parse connection string to database: %s", connectionString)
