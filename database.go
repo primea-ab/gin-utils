@@ -70,6 +70,10 @@ func (d *Db) BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, erro
 	return d.pool.BeginTx(ctx, txOptions)
 }
 
+func (d *Db) Pool() *pgxpool.Pool {
+	return d.pool
+}
+
 func (d *Db) Close() {
 	d.pool.Close()
 }
