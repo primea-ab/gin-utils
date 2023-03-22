@@ -18,7 +18,7 @@ type Db struct {
 }
 
 func New(ctx context.Context, host, port, user, password, dbName string, opts ...Option) *Db {
-	connectionString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s", host, port, user, password, dbName)
+	connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s", host, port, user, password, dbName)
 	conf, err := pgxpool.ParseConfig(connectionString)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("unable to parse connection string to database: %s", connectionString)
