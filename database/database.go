@@ -12,12 +12,22 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type Db struct {
+type Db interface {
+	Ping(ctx context.Context) error
+	Query(ctx context.Context, sql string, args ...interface{}) (pgx.Rows, error)
+	QueryRow(ctx context.Context, sql string, args ...interface{}) pgx.Row
+	Exec(ctx context.Context, sql string, args ...interface{}) (pgconn.CommandTag, error)
+	BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error)
+	Pool() *pgxpool.Pool
+	Close()
+}
+
+type Postgres struct {
 	pool *pgxpool.Pool
 	conf *pgxpool.Config
 }
 
-func New(ctx context.Context, host, port, user, password, dbName string, opts ...Option) *Db {
+func New(ctx context.Context, host, port, user, password, dbName string, opts ...Option) Db {
 	connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s", host, port, user, password, dbName)
 	conf, err := pgxpool.ParseConfig(connectionString)
 	if err != nil {
@@ -33,7 +43,7 @@ func New(ctx context.Context, host, port, user, password, dbName string, opts ..
 		return nil
 	}
 
-	db := new(Db)
+	db := new(Postgres)
 	db.conf = conf
 
 	for _, opt := range opts {
@@ -50,30 +60,30 @@ func New(ctx context.Context, host, port, user, password, dbName string, opts ..
 	return db
 }
 
-func (d *Db) Ping(ctx context.Context) error {
+func (d *Postgres) Ping(ctx context.Context) error {
 	return d.pool.Ping(ctx)
 }
 
-func (d *Db) Query(ctx context.Context, sql string, args ...interface{}) (pgx.Rows, error) {
+func (d *Postgres) Query(ctx context.Context, sql string, args ...interface{}) (pgx.Rows, error) {
 	return d.pool.Query(ctx, sql, args...)
 }
 
-func (d *Db) QueryRow(ctx context.Context, sql string, args ...interface{}) pgx.Row {
+func (d *Postgres) QueryRow(ctx context.Context, sql string, args ...interface{}) pgx.Row {
 	return d.pool.QueryRow(ctx, sql, args...)
 }
 
-func (d *Db) Exec(ctx context.Context, sql string, args ...interface{}) (pgconn.CommandTag, error) {
+func (d *Postgres) Exec(ctx context.Context, sql string, args ...interface{}) (pgconn.CommandTag, error) {
 	return d.pool.Exec(ctx, sql, args...)
 }
 
-func (d *Db) BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error) {
+func (d *Postgres) BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error) {
 	return d.pool.BeginTx(ctx, txOptions)
 }
 
-func (d *Db) Pool() *pgxpool.Pool {
+func (d *Postgres) Pool() *pgxpool.Pool {
 	return d.pool
 }
 
-func (d *Db) Close() {
+func (d *Postgres) Close() {
 	d.pool.Close()
 }
