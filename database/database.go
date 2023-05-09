@@ -16,6 +16,7 @@ type Db interface {
 	Ping(ctx context.Context) error
 	Query(ctx context.Context, sql string, args ...interface{}) (pgx.Rows, error)
 	QueryRow(ctx context.Context, sql string, args ...interface{}) pgx.Row
+	QueryInt(ctx context.Context, sql string, args ...interface{}) (int64, error)
 	Exec(ctx context.Context, sql string, args ...interface{}) (pgconn.CommandTag, error)
 	BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error)
 	Pool() *pgxpool.Pool
@@ -70,6 +71,15 @@ func (d *Postgres) Query(ctx context.Context, sql string, args ...interface{}) (
 
 func (d *Postgres) QueryRow(ctx context.Context, sql string, args ...interface{}) pgx.Row {
 	return d.pool.QueryRow(ctx, sql, args...)
+}
+
+func (d *Postgres) QueryInt(ctx context.Context, sql string, args ...interface{}) (int64, error) {
+	var i int64
+	err := d.pool.QueryRow(ctx, sql, args...).Scan(&i)
+	if err != nil {
+		return 0, err
+	}
+	return i, nil
 }
 
 func (d *Postgres) Exec(ctx context.Context, sql string, args ...interface{}) (pgconn.CommandTag, error) {

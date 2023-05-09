@@ -44,6 +44,11 @@ func (d *Dummy) QueryRow(ctx context.Context, sql string, args ...interface{}) p
 	}
 	return r.Data.(pgx.Row)
 }
+
+func (d *Dummy) QueryInt(ctx context.Context, sql string, args ...interface{}) (int64, error) {
+	panic("not implemented begin")
+}
+
 func (d *Dummy) Exec(ctx context.Context, sql string, args ...interface{}) (pgconn.CommandTag, error) {
 	d.ExecCalls++
 	r := d.Responses[0]
