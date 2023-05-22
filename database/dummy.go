@@ -2,9 +2,9 @@ package database
 
 import (
 	"context"
-	"github.com/jackc/pgconn"
-	"github.com/jackc/pgx/v4"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Resp struct {
@@ -54,9 +54,9 @@ func (d *Dummy) Exec(ctx context.Context, sql string, args ...interface{}) (pgco
 	r := d.Responses[0]
 	d.Responses = append(d.Responses[1:])
 	if r.Data != nil {
-		return r.Data.([]byte), nil
+		return pgconn.NewCommandTag(r.Data.(string)), nil
 	} else {
-		return nil, r.Err
+		return pgconn.CommandTag{}, r.Err
 	}
 }
 func (d *Dummy) BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error) {

@@ -4,11 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jackc/pgconn"
-	"github.com/jackc/pgtype"
-	pgtypeuuid "github.com/jackc/pgtype/ext/gofrs-uuid"
-	"github.com/jackc/pgx/v4"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog/log"
 )
 
@@ -35,14 +33,14 @@ func New(ctx context.Context, host, port, user, password, dbName string, opts ..
 		log.Fatal().Err(err).Msgf("unable to parse connection string to database: %s", connectionString)
 	}
 
-	conf.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		conn.ConnInfo().RegisterDataType(pgtype.DataType{
-			Value: &pgtypeuuid.UUID{},
-			Name:  "uuid",
-			OID:   pgtype.UUIDOID,
-		})
-		return nil
-	}
+	//conf.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
+	//	conn.ConnInfo().RegisterDataType(pgtype.DataType{
+	//		Value: &pgtypeuuid.UUID{},
+	//		Name:  "uuid",
+	//		OID:   pgtype.UUIDOID,
+	//	})
+	//	return nil
+	//}
 
 	db := new(Postgres)
 	db.conf = conf
@@ -51,7 +49,7 @@ func New(ctx context.Context, host, port, user, password, dbName string, opts ..
 		opt(db)
 	}
 
-	pool, err := pgxpool.ConnectConfig(ctx, db.conf)
+	pool, err := pgxpool.NewWithConfig(ctx, db.conf)
 	if err != nil {
 		log.Fatal().Err(err).Msg("unable to connect to database")
 	}

@@ -3,8 +3,6 @@ package database
 import (
 	"crypto/tls"
 	"time"
-
-	"github.com/jackc/pgx/v4"
 )
 
 type Option func(db *Postgres)
@@ -12,18 +10,6 @@ type Option func(db *Postgres)
 func WithConnectionTimeout(timeout time.Duration) Option {
 	return func(db *Postgres) {
 		db.conf.ConnConfig.ConnectTimeout = timeout
-	}
-}
-
-func WithLogLevel(loglevel pgx.LogLevel) Option {
-	return func(db *Postgres) {
-		db.conf.ConnConfig.LogLevel = loglevel
-	}
-}
-
-func WithDBLogger(logger pgx.Logger) Option {
-	return func(db *Postgres) {
-		db.conf.ConnConfig.Logger = logger
 	}
 }
 
