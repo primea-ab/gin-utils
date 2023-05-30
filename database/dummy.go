@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -25,6 +26,7 @@ func NewDummy() *Dummy {
 func (d *Dummy) Ping(ctx context.Context) error {
 	panic("not implemented ping")
 }
+
 func (d *Dummy) Query(ctx context.Context, sql string, args ...interface{}) (pgx.Rows, error) {
 	d.QueryCalls++
 	r := d.Responses[0]
@@ -35,6 +37,7 @@ func (d *Dummy) Query(ctx context.Context, sql string, args ...interface{}) (pgx
 		return nil, r.Err
 	}
 }
+
 func (d *Dummy) QueryRow(ctx context.Context, sql string, args ...interface{}) pgx.Row {
 	d.QueryRowCalls++
 	r := d.Responses[0]
@@ -59,12 +62,15 @@ func (d *Dummy) Exec(ctx context.Context, sql string, args ...interface{}) (pgco
 		return pgconn.CommandTag{}, r.Err
 	}
 }
+
 func (d *Dummy) BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error) {
 	panic("not implemented begin")
 }
+
 func (d *Dummy) Pool() *pgxpool.Pool {
 	panic("not implemented pool")
 }
+
 func (d *Dummy) Close() {
 	panic("not implemented close")
 }

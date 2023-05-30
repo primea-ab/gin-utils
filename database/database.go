@@ -26,6 +26,23 @@ type Postgres struct {
 	conf *pgxpool.Config
 }
 
+func Query[T any](db Db, ctx context.Context, sql string, f func(row pgx.Rows) (*T, error), args ...interface{}) ([]*T, error) {
+	rows, err := db.Query(ctx, sql, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var result []*T
+	for rows.Next() {
+		r, err := f(rows)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, r)
+	}
+	return result, nil
+}
+
 func New(ctx context.Context, host, port, user, password, dbName string, opts ...Option) Db {
 	connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s", host, port, user, password, dbName)
 	conf, err := pgxpool.ParseConfig(connectionString)
