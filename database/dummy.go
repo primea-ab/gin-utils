@@ -84,7 +84,7 @@ type DummyTx struct {
 }
 
 func (td *DummyTx) Begin(ctx context.Context) (pgx.Tx, error) {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
@@ -99,22 +99,22 @@ func (td *DummyTx) Rollback(ctx context.Context) error {
 }
 
 func (td *DummyTx) CopyFrom(ctx context.Context, tableName pgx.Identifier, columnNames []string, rowSrc pgx.CopyFromSource) (int64, error) {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
 func (td *DummyTx) SendBatch(ctx context.Context, b *pgx.Batch) pgx.BatchResults {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
 func (td *DummyTx) LargeObjects() pgx.LargeObjects {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
 func (td *DummyTx) Prepare(ctx context.Context, name, sql string) (*pgconn.StatementDescription, error) {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
@@ -123,7 +123,7 @@ func (td *DummyTx) Exec(ctx context.Context, sql string, arguments ...any) (comm
 }
 
 func (td *DummyTx) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
@@ -132,6 +132,6 @@ func (td *DummyTx) QueryRow(ctx context.Context, sql string, args ...any) pgx.Ro
 }
 
 func (td *DummyTx) Conn() *pgx.Conn {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
