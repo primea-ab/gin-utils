@@ -7,15 +7,11 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
-	"encoding/pem"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
-
-	"github.com/google/uuid"
-	"golang.org/x/crypto/pkcs12"
 )
 
 const (
@@ -25,7 +21,7 @@ const (
 )
 
 type Swish interface {
-	MakePayment(ctx context.Context, phoneNumber string, amount int, reference string, message string) (string, error)
+	MakePayment(ctx context.Context, phoneNumber string, amount int, reference string, message string) error
 }
 
 func NewSwish(prod bool, callbackUrl string, clientCert []byte, clientCertPassword string) Swish {
@@ -45,17 +41,8 @@ func NewSwish(prod bool, callbackUrl string, clientCert []byte, clientCertPasswo
 	if !caPool.AppendCertsFromPEM(rootCert) {
 		log.Fatalf("could not append CA Certificate to pool. Invalid rootCertBase64")
 	}
-	blocks, err := pkcs12.ToPEM(clientCert, clientCertPassword)
-	if err != nil {
-		log.Fatalf("unable to load pkcs12 %v", err)
-	}
 
-	var pemData []byte
-	for _, b := range blocks {
-		pemData = append(pemData, pem.EncodeToMemory(b)...)
-	}
-
-	cert, err := tls.X509KeyPair(pemData, pemData)
+	cert, err := tls.X509KeyPair(clientCert, clientCert)
 	if err != nil {
 		log.Fatalf("unable to load pkcs12 %v", err)
 	}
@@ -83,35 +70,34 @@ type Impl struct {
 func (s *Impl) MakePayment(
 	ctx context.Context,
 	phoneNumber string,
-	amount int,
+	amountCent int,
 	reference string,
 	message string,
-) (string, error) {
+) error {
+	reference = strings.ToUpper(strings.ReplaceAll(reference, "-", ""))
 	payload := &MakePaymentRequest{
 		PayeePaymentReference: reference,
 		CallbackUrl:           s.callbackUrl,
 		PayeeAlias:            "1230434126",
 		PayerAlias:            phoneNumber,
-		Amount:                strconv.Itoa(amount),
+		Amount:                strconv.Itoa(amountCent / 100),
 		Currency:              "SEK",
 		Message:               message,
 	}
 
-	id := uuid.New().String()
-
 	b, _ := json.Marshal(payload)
-	url := s.url + "paymentrequests/" + strings.ToUpper(strings.ReplaceAll(id, "-", ""))
+	url := s.url + "paymentrequests/" + reference
 	req, err := http.NewRequestWithContext(ctx, http.MethodPut,
 		url,
 		bytes.NewReader(b))
 	req.Header.Add("content-type", "application/json")
 	if err != nil {
 		log.Printf("Failed to create request %v", err)
-		return "", err
+		return err
 	}
 	res, err := s.client.Do(req)
 	if strings.TrimSpace(res.Status) == "201" {
-		return id, nil
+		return nil
 	} else {
 		log.Printf("Swish status %s", res.Status)
 		log.Printf("Got response from swish %v", res)
@@ -121,6 +107,6 @@ func (s *Impl) MakePayment(
 			log.Println(err)
 		}
 		log.Printf("Body %v", string(rb))
-		return id, err
+		return err
 	}
 }
