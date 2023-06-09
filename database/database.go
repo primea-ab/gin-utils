@@ -43,6 +43,18 @@ func Query[T any](db Db, ctx context.Context, sql string, f func(row pgx.Rows) (
 	return result, nil
 }
 
+func QueryRow[T any](db Db, ctx context.Context, sql string, f func(ctx context.Context, row pgx.Rows) (*T, error), args ...interface{}) (*T, error) {
+	rows, err := db.Query(ctx, sql, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	if rows.Next() {
+		return f(ctx, rows)
+	}
+	return nil, pgx.ErrNoRows
+}
+
 func New(ctx context.Context, host, port, user, password, dbName string, opts ...Option) Db {
 	connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s", host, port, user, password, dbName)
 	conf, err := pgxpool.ParseConfig(connectionString)
