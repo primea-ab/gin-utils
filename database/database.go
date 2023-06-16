@@ -32,7 +32,7 @@ func Query[T any](db Db, ctx context.Context, sql string, f func(row pgx.Rows) (
 		return nil, err
 	}
 	defer rows.Close()
-	var result []*T
+	result := make([]*T, 0)
 	for rows.Next() {
 		r, err := f(rows)
 		if err != nil {
